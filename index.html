@@ -3,613 +3,150 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kijabe Open World – Local Kid</title>
+  <title>Kijabe Adventures – Cute 3D</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: #1a1a1a;
-      color: #eee;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 50%, #ffd3b6 100%);
+      font-family: "Segoe UI", system-ui, sans-serif;
+      overflow: hidden;
+      height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      overflow: hidden;
     }
-    #header {
-      width: 100%;
-      max-width: 960px;
-      padding: 10px 16px;
+    #topbar {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      padding: 10px 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: #222;
-      border-bottom: 2px solid #444;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      z-index: 10;
     }
-    #header h1 { font-size: 1.1rem; font-weight: 600; }
-    #stats { display: flex; gap: 18px; font-size: 0.9rem; }
-    #game-wrap {
+    #topbar h1 {
+      font-size: 1.15rem;
+      color: #2d3436;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #stats {
+      display: flex;
+      gap: 16px;
+      font-size: 0.9rem;
+      color: #2d3436;
+      font-weight: 500;
+    }
+    #stats span {
+      background: #fff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    #game-container {
+      flex: 1;
       position: relative;
-      margin-top: 8px;
-      border: 3px solid #555;
-      border-radius: 6px;
-      overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
-    canvas { display: block; background: #2d5a27; }
-    #ui {
+    canvas { display: block; width: 100%; height: 100%; }
+    #ui-hint {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      background: rgba(0,0,0,0.7);
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      max-width: 260px;
-      pointer-events: none;
-    }
-    #dialogue {
-      position: absolute;
-      bottom: 20px;
+      bottom: 18px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(0,0,0,0.85);
-      border: 2px solid #888;
-      border-radius: 8px;
-      padding: 14px 18px;
-      max-width: 520px;
-      width: 90%;
-      display: none;
-      font-size: 0.95rem;
-      line-height: 1.4;
-    }
-    #dialogue .name { color: #7fdbff; font-weight: 600; margin-bottom: 4px; }
-    #controls {
-      margin-top: 10px;
-      font-size: 0.8rem;
-      color: #aaa;
-      text-align: center;
-      max-width: 960px;
-      padding: 0 12px 16px;
+      background: rgba(255,255,255,0.9);
+      padding: 8px 16px;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      color: #555;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      pointer-events: none;
     }
     #quest-box {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.75);
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      max-width: 220px;
-      border-left: 3px solid #f0c040;
+      top: 16px;
+      right: 16px;
+      background: rgba(255,255,255,0.95);
+      padding: 12px 16px;
+      border-radius: 14px;
+      max-width: 240px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      border-left: 5px solid #fd79a8;
+      font-size: 0.85rem;
+      color: #2d3436;
     }
-    .hidden { display: none !important; }
+    #quest-box strong { color: #e84393; }
+    #dialogue {
+      position: absolute;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.97);
+      border-radius: 18px;
+      padding: 16px 22px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      display: none;
+      border: 3px solid #ffeaa7;
+    }
+    #dialogue .name {
+      font-weight: 700;
+      color: #e17055;
+      margin-bottom: 6px;
+      font-size: 1.05rem;
+    }
+    #dialogue .text { color: #2d3436; line-height: 1.45; }
+    #wind-msg {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(255,255,255,0.9);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: #0984e3;
+      display: none;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
   </style>
 </head>
 <body>
-  <div id="header">
-    <h1>🏞️ Kijabe Open World – Local Kid</h1>
+  <div id="topbar">
+    <h1>🏞️ Kijabe Adventures <small style="font-weight:400;font-size:0.8rem;color:#636e72">Cute 3D</small></h1>
     <div id="stats">
       <span>💰 <span id="money">120</span> KSh</span>
       <span>🕐 <span id="time">Morning</span></span>
-      <span>🎒 <span id="inv-count">0</span> items</span>
+      <span>🎒 <span id="inv-count">0</span></span>
     </div>
   </div>
 
-  <div id="game-wrap">
-    <canvas id="game" width="900" height="560"></canvas>
-    <div id="ui">
-      <div>Move: WASD / Arrows</div>
-      <div>Interact: E / Space</div>
-      <div>Football: Kick near ball</div>
-    </div>
+  <div id="game-container">
     <div id="quest-box">
-      <strong>Active Quest</strong><br>
-      <span id="quest-text">Talk to the doctor at the Hospital</span>
+      <strong>Quest</strong><br>
+      <span id="quest-text">Talk to Dr. Wanjiku at the Hospital 🏥</span>
     </div>
+    <div id="wind-msg">💨 The famous Kijabe wind is blowing!</div>
     <div id="dialogue">
       <div class="name" id="dlg-name"></div>
-      <div id="dlg-text"></div>
+      <div class="text" id="dlg-text"></div>
     </div>
+    <div id="ui-hint">WASD / Arrows to move • E / Space to talk • Walk into the ball to kick ⚽</div>
   </div>
 
-  <div id="controls">
-    Explore Kijabe as a local kid. Find the Hospital, Market, Supermarket, Club, Football field, Viewpoint, Matatu stage, Shakahola, Garden, Mbiri & Kwa Peris.
-    Wind sometimes pushes you. Day/Night changes. Press E near people or places.
-  </div>
-
-<script>
-// ===================== CONFIG =====================
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-const W = canvas.width;
-const H = canvas.height;
-
-const TILE = 40;
-const MAP_W = 60; // tiles
-const MAP_H = 40;
-
-// Camera
-let camX = 0, camY = 0;
-
-// Player
-const player = {
-  x: 22 * TILE,
-  y: 18 * TILE,
-  w: 22,
-  h: 22,
-  speed: 2.6,
-  dir: 'down',
-  color: '#ffcc66'
-};
-
-// World state
-let money = 120;
-let inventory = [];
-let timeOfDay = 0; // 0-1 cycle
-let windTimer = 0;
-let windForce = {x:0, y:0};
-let dialogueOpen = false;
-let currentDialogue = null;
-let questStep = 0; // 0 = talk to doctor, 1 = deliver, 2 = done
-let marketDay = true; // for prototype always on
-let ball = { x: 38*TILE, y: 22*TILE, vx:0, vy:0, r:10 };
-let fastTravelUnlocked = false;
-
-// ===================== MAP DATA =====================
-// Simple zones (rectangles) for buildings & areas
-const zones = [
-  // Main places
-  { name: "AIC Kijabe Hospital", x: 8, y: 6, w: 8, h: 5, color: "#c0392b", type: "building", interact: "hospital" },
-  { name: "Kijabe Market", x: 20, y: 8, w: 7, h: 5, color: "#e67e22", type: "market", interact: "market" },
-  { name: "Supermarket", x: 30, y: 7, w: 5, h: 4, color: "#2980b9", type: "building", interact: "shop" },
-  { name: "Rift Valley Academy", x: 40, y: 5, w: 9, h: 6, color: "#8e44ad", type: "building", interact: "school" },
-  { name: "Mission Church", x: 12, y: 14, w: 5, h: 4, color: "#ecf0f1", type: "building", interact: "church" },
-  { name: "Social Club", x: 28, y: 15, w: 5, h: 4, color: "#9b59b6", type: "building", interact: "club" },
-  { name: "Football Field", x: 35, y: 18, w: 10, h: 7, color: "#27ae60", type: "field", interact: "football" },
-  { name: "Matatu Stage", x: 18, y: 22, w: 5, h: 3, color: "#f1c40f", type: "transport", interact: "matatu" },
-  { name: "Rift Viewpoint", x: 50, y: 12, w: 6, h: 4, color: "#1abc9c", type: "scenic", interact: "viewpoint" },
-
-  // User requested
-  { name: "Shakahola", x: 4, y: 26, w: 7, h: 5, color: "#7f8c8d", type: "area", interact: "shakahola" },
-  { name: "Garden", x: 14, y: 28, w: 6, h: 5, color: "#2ecc71", type: "park", interact: "garden" },
-  { name: "Mbiri", x: 42, y: 26, w: 7, h: 5, color: "#d35400", type: "area", interact: "mbiri" },
-  { name: "Kwa Peris", x: 25, y: 28, w: 5, h: 4, color: "#e74c3c", type: "shop", interact: "kwaperis" },
-
-  // Roads / paths (visual only)
-  { name: "Main Road", x: 0, y: 17, w: 60, h: 2, color: "#555", type: "road" },
-  { name: "Side Path", x: 22, y: 0, w: 2, h: 40, color: "#666", type: "road" },
-];
-
-// NPCs
-const npcs = [
-  { name: "Dr. Wanjiku", x: 11*TILE, y: 9*TILE, color: "#e74c3c", lines: [
-      "Karibu! We need someone to deliver these medicine packs to the market trader.",
-      "Take this package to Mama Njeri at the Market. She will give you something small."
-    ], quest: true },
-  { name: "Mama Njeri", x: 23*TILE, y: 10*TILE, color: "#f39c12", lines: [
-      "Ah, the medicine from the hospital? Asante sana!",
-      "Here, take 80 KSh and this fresh mango. You are a good child."
-    ], questReceiver: true },
-  { name: "Coach Kimani", x: 40*TILE, y: 21*TILE, color: "#3498db", lines: [
-      "Want to practice? Just kick the ball around the field!",
-      "Keep your head up, young one."
-    ] },
-  { name: "Conductor", x: 20*TILE, y: 23*TILE, color: "#f1c40f", lines: [
-      "Matatu to Viewpoint and Mbiri is ready when you are.",
-      "Just say the word and we move!"
-    ] },
-  { name: "Peris", x: 27*TILE, y: 29*TILE, color: "#e91e63", lines: [
-      "Karibu kwa Peris! Chai and mandazi available.",
-      "Sit and rest if the wind is too strong today."
-    ] },
-  { name: "Old Man Otieno", x: 52*TILE, y: 14*TILE, color: "#95a5a6", lines: [
-      "From this Viewpoint you can see the whole Rift Valley...",
-      "Take a photo in your mind. This place never changes."
-    ] },
-];
-
-// Collectibles
-const collectibles = [
-  { id: "windstone", x: 48*TILE, y: 8*TILE, name: "Wind Stone", taken: false },
-  { id: "mango", x: 16*TILE, y: 30*TILE, name: "Garden Mango", taken: false },
-  { id: "badge", x: 10*TILE, y: 7*TILE, name: "Hospital Badge", taken: false },
-];
-
-// ===================== HELPERS =====================
-function rectsOverlap(a, b) {
-  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-}
-
-function getZoneAt(px, py) {
-  for (let z of zones) {
-    if (z.type === "road") continue;
-    const zx = z.x * TILE, zy = z.y * TILE;
-    const zw = z.w * TILE, zh = z.h * TILE;
-    if (px > zx && px < zx+zw && py > zy && py < zy+zh) return z;
-  }
-  return null;
-}
-
-function nearNPC(px, py, dist = 36) {
-  for (let n of npcs) {
-    const dx = n.x - px, dy = n.y - py;
-    if (dx*dx + dy*dy < dist*dist) return n;
-  }
-  return null;
-}
-
-function showDialogue(name, text) {
-  dialogueOpen = true;
-  document.getElementById('dlg-name').textContent = name;
-  document.getElementById('dlg-text').textContent = text;
-  document.getElementById('dialogue').style.display = 'block';
-}
-
-function hideDialogue() {
-  dialogueOpen = false;
-  document.getElementById('dialogue').style.display = 'none';
-  currentDialogue = null;
-}
-
-function updateUI() {
-  document.getElementById('money').textContent = money;
-  document.getElementById('inv-count').textContent = inventory.length;
-  const t = timeOfDay < 0.25 ? "Night" : timeOfDay < 0.4 ? "Morning" : timeOfDay < 0.7 ? "Afternoon" : "Evening";
-  document.getElementById('time').textContent = t;
-
-  let qtxt = "Explore freely!";
-  if (questStep === 0) qtxt = "Talk to Dr. Wanjiku at the Hospital";
-  else if (questStep === 1) qtxt = "Deliver medicine to Mama Njeri at the Market";
-  else if (questStep === 2) qtxt = "Quest complete! Explore more of Kijabe";
-  document.getElementById('quest-text').textContent = qtxt;
-}
-
-// ===================== INPUT =====================
-const keys = {};
-window.addEventListener('keydown', e => {
-  keys[e.key.toLowerCase()] = true;
-  if (["arrowup","arrowdown","arrowleft","arrowright"," "].includes(e.key.toLowerCase())) e.preventDefault();
-
-  if ((e.key === 'e' || e.key === 'E' || e.key === ' ') && !dialogueOpen) {
-    interact();
-  } else if (dialogueOpen && (e.key === 'e' || e.key === 'E' || e.key === ' ' || e.key === 'Escape')) {
-    hideDialogue();
-  }
-});
-window.addEventListener('keyup', e => {
-  keys[e.key.toLowerCase()] = false;
-});
-
-function interact() {
-  const px = player.x + player.w/2;
-  const py = player.y + player.h/2;
-
-  // NPCs first
-  const npc = nearNPC(px, py);
-  if (npc) {
-    if (npc.quest && questStep === 0) {
-      showDialogue(npc.name, npc.lines[1]);
-      questStep = 1;
-      inventory.push("Medicine Pack");
-      updateUI();
-      return;
-    }
-    if (npc.questReceiver && questStep === 1 && inventory.includes("Medicine Pack")) {
-      showDialogue(npc.name, npc.lines[1]);
-      questStep = 2;
-      inventory = inventory.filter(i => i !== "Medicine Pack");
-      inventory.push("Fresh Mango");
-      money += 80;
-      updateUI();
-      return;
-    }
-    // normal line
-    const line = npc.lines[Math.floor(Math.random()*npc.lines.length)];
-    showDialogue(npc.name, line);
-    return;
-  }
-
-  // Zones
-  const zone = getZoneAt(px, py);
-  if (zone) {
-    handleZoneInteract(zone);
-  }
-}
-
-function handleZoneInteract(zone) {
-  switch(zone.interact) {
-    case "hospital":
-      showDialogue("Hospital", "You smell antiseptic and hear quiet voices. The staff are busy helping patients from all over Kenya.");
-      break;
-    case "market":
-      showDialogue("Kijabe Market", marketDay ? "Market day! Fresh vegetables, clothes and the smell of roasting maize fill the air." : "The market is quieter today.");
-      break;
-    case "shop":
-      if (money >= 40) {
-        money -= 40;
-        inventory.push("Soda + Chapati");
-        showDialogue("Supermarket", "You bought Soda + Chapati for 40 KSh. Asante!");
-        updateUI();
-      } else {
-        showDialogue("Supermarket", "You need at least 40 KSh for a quick meal.");
-      }
-      break;
-    case "school":
-      showDialogue("Rift Valley Academy", "Students are walking between classes. The campus feels peaceful and focused.");
-      break;
-    case "church":
-      showDialogue("Mission Church", "A calm place. Soft singing can sometimes be heard from inside.");
-      break;
-    case "club":
-      showDialogue("Social Club", "Music is playing softly. Locals are chatting and laughing.");
-      break;
-    case "football":
-      showDialogue("Football Field", "The grass is a bit rough but perfect for a kick-about. Approach the ball and walk into it to kick!");
-      break;
-    case "matatu":
-      showDialogue("Matatu Stage", "Conductor: 'We can take you to the Viewpoint or Mbiri quickly. (Fast travel unlocked after first talk)'");
-      fastTravelUnlocked = true;
-      break;
-    case "viewpoint":
-      showDialogue("Rift Valley Viewpoint", "Wow... the Great Rift Valley stretches forever. You take a mental photo. This is home.");
-      if (!inventory.includes("Viewpoint Memory")) {
-        inventory.push("Viewpoint Memory");
-        updateUI();
-      }
-      break;
-    case "shakahola":
-      showDialogue("Shakahola", "Quiet residential edge of town. Chickens scratch in the dust and the wind is stronger here.");
-      break;
-    case "garden":
-      showDialogue("Community Garden", "Tomatoes, sukuma and flowers grow here. A peaceful green corner of Kijabe.");
-      break;
-    case "mbiri":
-      showDialogue("Mbiri", "A lively neighbourhood. Kids are playing and someone is calling from a house.");
-      break;
-    case "kwaperis":
-      showDialogue("Kwa Peris", "The smell of chai and mandazi. Peris always has a kind word.");
-      break;
-    default:
-      showDialogue(zone.name, "You look around...");
-  }
-}
-
-// ===================== UPDATE =====================
-function update(dt) {
-  if (dialogueOpen) return;
-
-  // Movement
-  let dx = 0, dy = 0;
-  if (keys['w'] || keys['arrowup'])    { dy = -1; player.dir = 'up'; }
-  if (keys['s'] || keys['arrowdown'])  { dy = 1;  player.dir = 'down'; }
-  if (keys['a'] || keys['arrowleft'])  { dx = -1; player.dir = 'left'; }
-  if (keys['d'] || keys['arrowright']) { dx = 1;  player.dir = 'right'; }
-
-  if (dx !== 0 || dy !== 0) {
-    const len = Math.sqrt(dx*dx + dy*dy);
-    dx /= len; dy /= len;
-  }
-
-  // Wind
-  windTimer -= dt;
-  if (windTimer <= 0) {
-    windTimer = 3 + Math.random()*5;
-    if (Math.random() < 0.45) {
-      windForce.x = (Math.random()-0.5) * 1.8;
-      windForce.y = (Math.random()-0.5) * 1.8;
-    } else {
-      windForce.x = 0; windForce.y = 0;
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
     }
   }
+  </script>
 
-  let nx = player.x + (dx * player.speed + windForce.x);
-  let ny = player.y + (dy * player.speed + windForce.y);
+  <script type="module">
+    import * as THREE from 'three';
 
-  // Simple world bounds
-  nx = Math.max(10, Math.min(MAP_W*TILE - player.w - 10, nx));
-  ny = Math.max(10, Math.min(MAP_H*TILE - player.h - 10, ny));
-
-  // Building collision (only solid buildings)
-  const solid = zones.filter(z => z.type === "building" || z.type === "shop");
-  let blocked = false;
-  const tryRect = {x: nx, y: ny, w: player.w, h: player.h};
-  for (let z of solid) {
-    const zr = {x: z.x*TILE, y: z.y*TILE, w: z.w*TILE, h: z.h*TILE};
-    // shrink a bit so player can still interact near edge
-    zr.x += 6; zr.y += 6; zr.w -= 12; zr.h -= 12;
-    if (rectsOverlap(tryRect, zr)) { blocked = true; break; }
-  }
-  if (!blocked) {
-    player.x = nx;
-    player.y = ny;
-  }
-
-  // Ball physics (simple)
-  ball.x += ball.vx;
-  ball.y += ball.vy;
-  ball.vx *= 0.96;
-  ball.vy *= 0.96;
-  if (Math.abs(ball.vx) < 0.05) ball.vx = 0;
-  if (Math.abs(ball.vy) < 0.05) ball.vy = 0;
-
-  // Kick ball
-  const pcx = player.x + player.w/2;
-  const pcy = player.y + player.h/2;
-  const bdx = ball.x - pcx;
-  const bdy = ball.y - pcy;
-  const bdist = Math.sqrt(bdx*bdx + bdy*bdy);
-  if (bdist < 28 && (Math.abs(dx)+Math.abs(dy) > 0)) {
-    const force = 4.5;
-    ball.vx = (bdx / (bdist||1)) * force + dx * 1.5;
-    ball.vy = (bdy / (bdist||1)) * force + dy * 1.5;
-  }
-
-  // Keep ball roughly on field
-  if (ball.x < 35*TILE) ball.x = 35*TILE;
-  if (ball.x > 45*TILE) ball.x = 45*TILE;
-  if (ball.y < 18*TILE) ball.y = 18*TILE;
-  if (ball.y > 25*TILE) ball.y = 25*TILE;
-
-  // Collectibles
-  for (let c of collectibles) {
-    if (c.taken) continue;
-    const cdx = c.x - pcx, cdy = c.y - pcy;
-    if (cdx*cdx + cdy*cdy < 400) {
-      c.taken = true;
-      inventory.push(c.name);
-      updateUI();
-      showDialogue("Found!", "You picked up: " + c.name);
-    }
-  }
-
-  // Camera follow
-  camX = player.x - W/2 + player.w/2;
-  camY = player.y - H/2 + player.h/2;
-  camX = Math.max(0, Math.min(MAP_W*TILE - W, camX));
-  camY = Math.max(0, Math.min(MAP_H*TILE - H, camY));
-
-  // Time of day
-  timeOfDay += dt * 0.008;
-  if (timeOfDay > 1) timeOfDay -= 1;
-
-  updateUI();
-}
-
-// ===================== DRAW =====================
-function draw() {
-  ctx.clearRect(0, 0, W, H);
-
-  // Background grass
-  ctx.fillStyle = "#3d7a34";
-  ctx.fillRect(0, 0, W, H);
-
-  // Draw zones
-  for (let z of zones) {
-    const zx = z.x * TILE - camX;
-    const zy = z.y * TILE - camY;
-    const zw = z.w * TILE;
-    const zh = z.h * TILE;
-
-    ctx.fillStyle = z.color;
-    ctx.globalAlpha = z.type === "road" ? 0.7 : 0.9;
-    ctx.fillRect(zx, zy, zw, zh);
-    ctx.globalAlpha = 1;
-
-    // Border
-    if (z.type !== "road") {
-      ctx.strokeStyle = "rgba(0,0,0,0.35)";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(zx, zy, zw, zh);
-    }
-
-    // Label
-    if (z.type !== "road" && zw > 60) {
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 12px system-ui";
-      ctx.textAlign = "center";
-      ctx.fillText(z.name, zx + zw/2, zy + 16);
-    }
-  }
-
-  // Collectibles
-  for (let c of collectibles) {
-    if (c.taken) continue;
-    const cx = c.x - camX;
-    const cy = c.y - camY;
-    ctx.beginPath();
-    ctx.arc(cx, cy, 8, 0, Math.PI*2);
-    ctx.fillStyle = "#f1c40f";
-    ctx.fill();
-    ctx.strokeStyle = "#fff";
-    ctx.stroke();
-  }
-
-  // Ball
-  const bx = ball.x - camX;
-  const by = ball.y - camY;
-  ctx.beginPath();
-  ctx.arc(bx, by, ball.r, 0, Math.PI*2);
-  ctx.fillStyle = "#fff";
-  ctx.fill();
-  ctx.strokeStyle = "#333";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // NPCs
-  for (let n of npcs) {
-    const nx = n.x - camX;
-    const ny = n.y - camY;
-    // body
-    ctx.fillStyle = n.color;
-    ctx.fillRect(nx - 10, ny - 14, 20, 24);
-    // head
-    ctx.beginPath();
-    ctx.arc(nx, ny - 18, 9, 0, Math.PI*2);
-    ctx.fillStyle = "#f5d0a9";
-    ctx.fill();
-    // name tag
-    ctx.fillStyle = "rgba(0,0,0,0.6)";
-    ctx.fillRect(nx - 30, ny - 36, 60, 14);
-    ctx.fillStyle = "#fff";
-    ctx.font = "10px system-ui";
-    ctx.textAlign = "center";
-    ctx.fillText(n.name.split(' ')[0], nx, ny - 26);
-  }
-
-  // Player
-  const px = player.x - camX;
-  const py = player.y - camY;
-  // shadow
-  ctx.fillStyle = "rgba(0,0,0,0.25)";
-  ctx.beginPath();
-  ctx.ellipse(px + player.w/2, py + player.h - 2, 12, 5, 0, 0, Math.PI*2);
-  ctx.fill();
-  // body
-  ctx.fillStyle = player.color;
-  ctx.fillRect(px, py, player.w, player.h);
-  // head
-  ctx.beginPath();
-  ctx.arc(px + player.w/2, py - 6, 10, 0, Math.PI*2);
-  ctx.fillStyle = "#f5d0a9";
-  ctx.fill();
-  // simple face direction
-  ctx.fillStyle = "#333";
-  if (player.dir === 'down') {
-    ctx.fillRect(px + 6, py - 8, 3, 3);
-    ctx.fillRect(px + 13, py - 8, 3, 3);
-  }
-
-  // Day/Night overlay
-  let alpha = 0;
-  if (timeOfDay < 0.2 || timeOfDay > 0.85) alpha = 0.45;
-  else if (timeOfDay < 0.3 || timeOfDay > 0.75) alpha = 0.25;
-  if (alpha > 0) {
-    ctx.fillStyle = `rgba(10, 15, 40, ${alpha})`;
-    ctx.fillRect(0, 0, W, H);
-  }
-
-  // Wind indicator
-  if (Math.abs(windForce.x) > 0.3 || Math.abs(windForce.y) > 0.3) {
-    ctx.fillStyle = "rgba(255,255,255,0.7)";
-    ctx.font = "13px system-ui";
-    ctx.textAlign = "left";
-    ctx.fillText("💨 Wind is blowing...", 12, H - 14);
-  }
-}
-
-// ===================== LOOP =====================
-let last = performance.now();
-function loop(now) {
-  const dt = Math.min(0.05, (now - last) / 1000);
-  last = now;
-  update(dt);
-  draw();
-  requestAnimationFrame(loop);
-}
-
-updateUI();
-requestAnimationFrame(loop);
-</script>
-</body>
-</html>
+    // ===================== SETUP =====================
+    const container = document.getElementById('game-container');
+    const scene = new THREE.Scene();
+    scene.backgrou
+... 
